@@ -102,5 +102,34 @@ response = requests.get(BASE + "helloworld/Amber")
 ...
 ```
 
-> When it sends request with a given name, it will response back with the corresponding values of the given name
+> When it sends a request with a given name, it will response back with the corresponding values of the given name
 
+## Get Data from a Request
+
+test.py
+```python
+...
+response = requests.put(BASE + "video/1", {"like": 10})
+...
+```
+
+app.py
+```python
+...
+class Video(Resource):
+    def get(self, video_id):
+        return videos[video_id]
+
+    # create a video in this put
+    def put(self, video_id):
+        print(request.method) 
+            # this will print out 'put'
+            # since we are inside the put method
+        print(request.form)
+            # this will print out the data we sent through the request
+            # which is the 2nd parameter inside requests.put(BASE + "video/1", {"like": 10})
+        print(request.form["like"])
+            # it will print out a int value of 10
+        ...
+...
+```
