@@ -11,6 +11,9 @@ class HelloWorld(Resource):
     def get(self):
         return {"data": "Hello World"}
 
+    def post(self):
+        return {"data": "Posted"}
+
 # register HelloWorld as a resource
 api.add_resource(HelloWorld, "/helloworld")
 #  this is gonna be accessible at '/helloworld'
