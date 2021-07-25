@@ -8,14 +8,11 @@ api = Api(app)
 # make a class that is a resource
 #  such that it will handle functions like handling a get/put/delete request
 class HelloWorld(Resource):
-    def get(self):
-        return {"data": "Hello World"}
-
-    def post(self):
-        return {"data": "Posted"}
+    def get(self, name, test):
+        return {"name": name, "test": test}
 
 # register HelloWorld as a resource
-api.add_resource(HelloWorld, "/helloworld")
+api.add_resource(HelloWorld, "/helloworld/<string:name>/<int:test>")
 #  this is gonna be accessible at '/helloworld'
 
 if __name__ == "__main__":

@@ -51,3 +51,28 @@ api.add_resource(HelloWorld, "/helloworld")
 
 ## Passing Argument
 
+app.py
+```python
+...
+class HelloWorld(Resource):
+    def get(self, name, test):
+        return {"name": name, "test": test}
+api.add_resource(HelloWorld, "/helloworld/<string:name>/<int:test>")
+...
+```
+> this means that we want user to type something after '/helloworld/'
+
+test.py
+```python
+...
+response = requests.get(BASE + "helloworld/Amber/23")
+...
+```
+> And, we are gonna to pass that in request
+
+Output
+```terminal
+{'name': 'Amber', 'test': 23}
+```
+
+## Storing Data in Memory
