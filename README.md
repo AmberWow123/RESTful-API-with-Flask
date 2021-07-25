@@ -16,7 +16,7 @@ the ```test.py``` file send a **request**
 python test.py
 ```
 
-
+--- 
 ## Handling post/get request
 
 ### ```test.py```
@@ -61,7 +61,7 @@ api.add_resource(HelloWorld, "/helloworld")
 ```terminal
 {"data": "Hello World"}
 ```
-
+---
 ## Passing Argument
 
 ### ```app.py```
@@ -87,7 +87,7 @@ response = requests.get(BASE + "helloworld/Amber/23")
 ```terminal
 {'name': 'Amber', 'test': 23}
 ```
-
+---
 ## Storing Data in Memory
 
 ### ```app.py```
@@ -116,7 +116,7 @@ response = requests.get(BASE + "helloworld/Amber")
 ```
 
 > When it sends a request with a given name, it will response back with the corresponding values of the given name
-
+---
 ## Get Data from a Request
 
 ### ```test.py```
@@ -146,6 +146,91 @@ class Video(Resource):
         ...
 ...
 ```
-
+---
 ## Request Argument Parser
 
+> There is a better way to use request
+* The built-in method of Flask Restful called request parser
+
+### Import reqparse in ```app.py```
+```python
+from flask_restful import reqparse
+```
+### Make a New Request Parser Object in ```app.py```
+> we are gonna to make a new request parser object 
+```python
+...
+video_put_args = reqparse.RequestParser()
+...
+```
+> this request parser object will automatically parse through the sent request 
+
+> to ensure that the sent request kinda fits the defined guidelines and has the correct information in it
+
+> if it is correct, then it will allow us to grab all the information very easily by using a method called parse args
+
+### ```app.py```
+```python
+from flask import Flask
+from flask_restful import Api, Resource, reqparse
+app = Flask(__name__)
+api = Api(app)
+video_put_args = reqparse.RequestParser()
+# it means that the argument passed in is that something
+#  we need to be sent through the request
+video_put_args.add_argument("name", type=str, help="Name of the video is required")
+video_put_args.add_argument("views", type=int, help="Views of the video is required")
+video_put_args.add_argument("likes", type=int, help="Likes on the video is required")
+# 1st: the name of key
+# 2nd: the type of the argument
+# 3rd: like an error message if they don't send us this name argument
+
+videos = {}
+
+class Video(Resource):
+    def get(self, video_id):
+        return videos[video_id]
+
+    # create a video in this put
+    def put(self, video_id):
+        args = video_put_args.parse_args()
+        return {video_id: args}
+         
+api.add_resource(Video, "/video/<int:video_id>")
+
+if __name__ == "__main__":
+    app.run(debug=True)
+```
+### ```test.p```
+```python
+...
+response = requests.put(BASE + "video/1", {"likes": 10})
+...
+```
+
+### Output
+> the values of keys 'name' and 'views' are both ```None```
+
+> it's because we didn't send anything with them
+```terminal
+{'1': {'name': None, 'views': None, 'likes': 10}}
+```
+
+### Error Message When the Request Doesn't Fit
+
+### ```app.py```
+```python
+...
+video_put_args.add_argument("name", type=str, help="Name of the video is required", required=True)
+video_put_args.add_argument("views", type=int, help="Views of the video is required", required=True)
+video_put_args.add_argument("likes", type=int, help="Likes on the video is required", required=True)
+...
+```
+### Output
+> It's telling us that the argument you sent is invalid
+
+> the argument 'name' is the thing we are looking for, but it is not passed in, then the error message appears
+```terminal
+{'message': {'name': 'Name of the video is required'}}
+```
+---

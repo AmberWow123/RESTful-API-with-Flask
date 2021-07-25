@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_restful import Api, Resource
+from flask_restful import Api, Resource, reqparse
 # above two models are the main thing we are going to use
 
 app = Flask(__name__)
@@ -21,6 +21,16 @@ api = Api(app)
 # #  this is gonna be accessible at '/helloworld'
 
 
+video_put_args = reqparse.RequestParser()
+# it means that the argument passed in is that something
+#  we need to be sent through the request
+video_put_args.add_argument("name", type=str, help="Name of the video is required", required=True)
+video_put_args.add_argument("views", type=int, help="Views of the video is required", required=True)
+video_put_args.add_argument("likes", type=int, help="Likes on the video is required", required=True)
+# 1st: the name of key
+# 2nd: the type of the argument
+# 3rd: like an error message if they don't send us this name argument
+
 videos = {}
 
 class Video(Resource):
@@ -29,7 +39,8 @@ class Video(Resource):
 
     # create a video in this put
     def put(self, video_id):
-        return {}
+        args = video_put_args.parse_args()
+        return {video_id: args}
          
 
 # whenever we send information to this request
