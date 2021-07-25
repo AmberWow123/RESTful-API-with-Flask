@@ -29,6 +29,7 @@ class Video(Resource):
 
     # create a video in this put
     def put(self, video_id):
+        return {}
          
 
 # whenever we send information to this request

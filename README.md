@@ -18,6 +18,8 @@ python test.py
 
 
 ## Handling post/get request
+
+### ```test.py```
 ```python
 import requests
 
@@ -31,7 +33,7 @@ print(response.json())
 ```
 > ```get``` and ```post``` are the methods we wrote in ```app.py```
 
-app.py
+### ```app.py```
 ```python
 ...
 # make a class that is a resource
@@ -49,9 +51,20 @@ api.add_resource(HelloWorld, "/helloworld")
 ...
 ```
 
+### Output
+
+> if we have response = requests.post(BASE + "helloworld") in ```test.py```
+```terminal
+{"data": "Posted"}
+```
+> otherwise, if we have response = requests.get(BASE + "helloworld") in ```test.py```
+```terminal
+{"data": "Hello World"}
+```
+
 ## Passing Argument
 
-app.py
+### ```app.py```
 ```python
 ...
 class HelloWorld(Resource):
@@ -62,7 +75,7 @@ api.add_resource(HelloWorld, "/helloworld/<string:name>/<int:test>")
 ```
 > this means that we want user to type something after '/helloworld/'
 
-test.py
+### ```test.py```
 ```python
 ...
 response = requests.get(BASE + "helloworld/Amber/23")
@@ -70,16 +83,16 @@ response = requests.get(BASE + "helloworld/Amber/23")
 ```
 > And, we are gonna to pass that in request
 
-Output
+### Output
 ```terminal
 {'name': 'Amber', 'test': 23}
 ```
 
 ## Storing Data in Memory
 
-app.py
+### ```app.py```
 
-Store a dictionary ```names``` with the corresponding values of specific name
+> Store a dictionary ```names``` with the corresponding values of specific name
 ```python
 ...
 # whenever they send us a name,
@@ -95,7 +108,7 @@ api.add_resource(HelloWorld, "/helloworld/<string:name>")
 ...
 ```
 
-test.py
+### ```test.py```
 ```python
 ...
 response = requests.get(BASE + "helloworld/Amber")
@@ -106,14 +119,14 @@ response = requests.get(BASE + "helloworld/Amber")
 
 ## Get Data from a Request
 
-test.py
+### ```test.py```
 ```python
 ...
 response = requests.put(BASE + "video/1", {"like": 10})
 ...
 ```
 
-app.py
+### ```app.py```
 ```python
 ...
 class Video(Resource):
@@ -133,3 +146,6 @@ class Video(Resource):
         ...
 ...
 ```
+
+## Request Argument Parser
+
