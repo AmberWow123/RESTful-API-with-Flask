@@ -5,9 +5,15 @@ from flask_restful import Api, Resource
 app = Flask(__name__)
 api = Api(app)
 
-@app.route("/")
-def index():
-    return "hello, world!"
+# make a class that is a resource
+#  such that it will handle functions like handling a get/put/delete request
+class HelloWorld(Resource):
+    def get(self):
+        return {"data": "Hello World"}
+
+# register HelloWorld as a resource
+api.add_resource(HelloWorld, "/helloworld")
+#  this is gonna be accessible at '/helloworld'
 
 if __name__ == "__main__":
     app.run(debug=True)
