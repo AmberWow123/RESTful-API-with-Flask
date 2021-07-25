@@ -40,7 +40,9 @@ class Video(Resource):
     # create a video in this put
     def put(self, video_id):
         args = video_put_args.parse_args()
-        return {video_id: args}
+        videos[video_id] = args
+        return videos[video_id], 201
+        # the status code 201 stands for 'created'
          
 
 # whenever we send information to this request

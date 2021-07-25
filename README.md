@@ -234,3 +234,42 @@ video_put_args.add_argument("likes", type=int, help="Likes on the video is requi
 {'message': {'name': 'Name of the video is required'}}
 ```
 ---
+
+## Sending Status Code
+
+### ```app.py```
+```python
+...
+class Video(Resource):
+    def get(self, video_id):
+        return videos[video_id]
+
+    # create a video in this put
+    def put(self, video_id):
+        args = video_put_args.parse_args()
+        videos[video_id] = args
+        return videos[video_id], 201
+        # the status code 201 stands for 'created'
+        # 200 stands for 'Okay' (Nothing goes wrong)
+...
+```
+
+### ```test.py```
+```python
+...
+response = requests.put(BASE + "video/1", {"likes": 10, "name": "Amber", "views": 1000000})
+print(response.json())
+
+input() # we can pause for a while til we hit enter
+
+response = requests.get(BASE + "video/1")
+# this will send whatever stored inside the videos dict
+print(response.json())
+```
+
+### Output
+```terminal
+{'name': 'Amber', 'views': 1000000, 'likes': 10}
+<Enter>
+{'name': 'Amber', 'views': 1000000, 'likes': 10}
+```
