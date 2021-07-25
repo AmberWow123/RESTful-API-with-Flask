@@ -76,3 +76,31 @@ Output
 ```
 
 ## Storing Data in Memory
+
+app.py
+
+Store a dictionary ```names``` with the corresponding values of specific name
+```python
+...
+# whenever they send us a name,
+# we will send its corresponding value back
+names = {"Amber": {"age": 23, "gender": "female"}, 
+        "Jack": {"age": 26, "gender": "male"}}
+
+class HelloWorld(Resource):
+    def get(self, name):
+        return names[name]
+
+api.add_resource(HelloWorld, "/helloworld/<string:name>")
+...
+```
+
+test.py
+```python
+...
+response = requests.get(BASE + "helloworld/Amber")
+...
+```
+
+> When it sends request with a given name, it will response back with the corresponding values of the given name
+

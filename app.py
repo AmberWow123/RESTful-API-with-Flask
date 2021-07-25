@@ -5,14 +5,19 @@ from flask_restful import Api, Resource
 app = Flask(__name__)
 api = Api(app)
 
+# whenever they send us a name,
+# we will send its corresponding value back
+names = {"Amber": {"age": 23, "gender": "female"}, 
+        "Jack": {"age": 26, "gender": "male"}}
+
 # make a class that is a resource
 #  such that it will handle functions like handling a get/put/delete request
 class HelloWorld(Resource):
-    def get(self, name, test):
-        return {"name": name, "test": test}
+    def get(self, name):
+        return names[name]
 
 # register HelloWorld as a resource
-api.add_resource(HelloWorld, "/helloworld/<string:name>/<int:test>")
+api.add_resource(HelloWorld, "/helloworld/<string:name>")
 #  this is gonna be accessible at '/helloworld'
 
 if __name__ == "__main__":
