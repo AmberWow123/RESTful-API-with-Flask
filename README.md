@@ -309,4 +309,76 @@ print(response.json())
 ```
 
 ---
-## 
+## Handling Delete Requests
+We now completed ```put()``` and ```delete()``` by checking whether or not the video id exist
+
+### ```app.py```
+```python
+...
+def abort_if_video_id_not_exist(video_id):
+    if video_id not in videos:
+        abort(404, message="Could not find such a video id...")
+        # 404 as 'could not found'
+
+def abort_if_video_exists(video_id):
+    if video_id in videos:
+        abort(409, message="Video already exists with that ID...")
+
+class Video(Resource):
+    # get video info with a given video id
+    def get(self, video_id):
+        abort_if_video_id_not_exist(video_id)
+        return videos[video_id]
+
+    # create a video
+    def put(self, video_id):
+        # make sure that we don't create a video that already exists
+        abort_if_video_exists(video_id)
+        args = video_put_args.parse_args()
+        videos[video_id] = args
+        return videos[video_id], 201    # 201 as 'created'
+    
+    # delete a video
+    def delete(self, video_id):
+        # make sure that we don't delete a video that doesn't exist
+        abort_if_video_id_not_exist(video_id)
+        del videos[video_id]
+        return '', 204                  # 204 as 'deleted successfully'
+...
+```
+### ```test.py```
+> Create 3 videos with video id from 0 to 2
+```python
+data = [
+    {"likes": 9999999999999, "name": "Girls' Generation - Gee", "views": 10000000000000},
+    {"likes": 1000, "name": "How to make RESTful API", "views": 3000},
+    {"likes": 10, "name": "Amber", "views": 70000}
+]
+
+for i in range(len(data)):
+    response = requests.put(BASE + "video/" + str(i), data[i])
+    print(response.json())
+
+input()
+response = requests.delete(BASE + "video/0")
+print(response)         
+# for requesting a delete method, it returns a blank string such that there is no .json format at all
+
+input()
+response = requests.get(BASE + "video/2")
+print(response.json())
+```
+> Then, delete the video 0 and get the video info of video 2
+### Output
+```terminal
+{'name': "Girls' Generation - Gee", 'views': 10000000000000, 'likes': 9999999999999}
+{'name': 'How to make RESTful API', 'views': 3000, 'likes': 1000}
+{'name': 'Amber', 'views': 70000, 'likes': 10}
+<Enter>
+<Response [204]>
+<Enter>
+{'name': 'Amber', 'views': 70000, 'likes': 10}
+```
+
+---
+##
