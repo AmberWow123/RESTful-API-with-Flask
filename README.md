@@ -1,5 +1,9 @@
 # RESTful-API-with-Flask
 
+Credit to [Tech With Tim](https://www.youtube.com/channel/UC4JX40jDee_tINbkjycV4Sg)
+
+Notes from his [Tutorial Video](https://www.youtube.com/watch?v=GMppyAPbLYk&ab_channel=TechWithTim)
+
 ## Setup
 ```
 pip install -r requirements.txt
