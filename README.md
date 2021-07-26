@@ -381,4 +381,54 @@ print(response.json())
 ```
 
 ---
+## Database Configuration
+Rather than using memory as what we have done so far, we can get all these to be stored in a persistent database
+
+### Install Database
+> Okay to skip this part if you have '```pip install -r requirements.txt```'
+
+```python
+pip install Flask-SQLAlchemy
+```
+
+### Import SQL Alchemy in ```app.py```
+```python
+from flask_sqlalchemy import SQLAlchemy
+```
+
+### Connect to Database in ```app.py```
+```python
+app = Flask(__name__)
+api = Api(app)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+db = SQLAlchemy(app)
+
+
+class VideoModel(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)        
+        # 100 as the amount of potential chars
+        # nullable=False means there should some text standing for the name of the video
+    views = db.Column(db.Integer, nullable=False) 
+    likes = db.Column(db.Integer, nullable=False) 
+
+    def __repr__(self):
+        return (f"Video(name = {self.name}, views = {self.views}, likes = {self.likes})")
+
+db.create_all()         # only run once
+# comment out this line after the first run
+# otherwise, the database will be overwrited everytime you run
+```
+
+### Error: Instance of 'SQLAlchemy' has no 'Column' member
+1. Open the Command Palette (Command+Shift+P on macOS and Ctrl+Shift+P on Windows/Linux) and type in ```Python: Select Linter```
+
+2. Switch from PyLint to flake8 or other supported linters
+
+> Then, there might be some formatting error, but easy to solve
+
+---
+## 
+
+---
 ##
