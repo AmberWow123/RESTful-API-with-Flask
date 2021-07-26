@@ -6,11 +6,11 @@ BASE = "http://127.0.0.1:5000/"
 
 # response = requests.get(BASE + "helloworld/Amber")
 
-response = requests.put(BASE + "video/1", {"likes": 10, "name": "Amber", "views": 1000000})
-print(response.json())
+# response = requests.put(BASE + "video/1", {"likes": 10, "name": "Amber", "views": 1000000})
+# print(response.json())
 
-input() # we can pause for a while til we hit enter
+# input() # we can pause for a while til we hit enter
 
-response = requests.get(BASE + "video/1")
+response = requests.get(BASE + "video/5")
 # this will send whatever stored inside the videos dict
 print(response.json())

@@ -273,3 +273,40 @@ print(response.json())
 <Enter>
 {'name': 'Amber', 'views': 1000000, 'likes': 10}
 ```
+---
+## Validating Requests
+To make sure that we don't actually crash if we ask for some key (ex. video_id) that doesn't exist
+
+### Import ```abort``` in ```app.py```
+```python
+from flask_restful import abort
+```
+
+### Write an validating function in ```app.py```
+```python
+# check if the video_id passed in actually exists or not
+def abort_if_video_id_not_exist(video_id):
+    if video_id not in videos:
+        abort(404, message="Could not find such a video id...")
+        # 404 as 'could not found'
+
+class Video(Resource):
+    def get(self, video_id):
+        abort_if_video_id_not_exist(video_id)               # added
+        return videos[video_id]
+...
+```
+### ```test.py```
+```python
+response = requests.get(BASE + "video/5")       # passed in an non-exist video_id
+print(response.json())
+```
+
+### Output
+> Since there is no such video id, ```abort()``` is called and the error message is printed
+```terminal
+{'message': 'Could not find such a video id...'}
+```
+
+---
+## 
