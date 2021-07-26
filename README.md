@@ -432,7 +432,113 @@ db.create_all()         # only run once
 > Then, there might be some formatting error, but easy to solve
 
 ---
-## 
+## Serializing Objects & Adding Entries to the Database
+
+### ```app.py```
+What we prefer on these fields
+```python
+...
+from flask_restful import fields, marshal_with
+...
+# we are making this dictionary here
+# it will define the fields from the VideoModel above
+resource_fields = {
+    'id': fields.Integer,
+    'name': fields.String,
+    'views': fields.Integer,
+    'likes': fields.Integer
+}
+
+class Video(Resource):
+    # it means that when the class method returns
+    # take the return value and serialize it using 'resource_fields'
+    # so it assumes we have 'id', 'name', 'views' and 'likes' in the instance
+    # then, serialize it into json format that can be returned
+    @marshal_with(resource_fields)
+    def get(self, video_id):
+        result = VideoModel.query.filter_by(id=video_id).first()
+        # to filter all of the videos with the video_id we have
+        # then we return the first response (or first entry in that filter)
+
+        if not result:      # if not exist, then no such video info can be found
+            abort(404, message="Could not find video with that id...")
+
+        return result
+
+    @marshal_with(resource_fields)
+    # create a video in this put
+    def put(self, video_id):
+        args = video_put_args.parse_args()
+        
+        result = VideoModel.query.filter_by(id=video_id).first()
+        if result:  # if exists, then video_id already exists
+            abort(409, message="Video id has been taken...")
+        
+        # access each value in args individually and use them to create a new VideoModel
+        video = VideoModel(id=video_id, name=args['name'], views=args['views'], likes=args['likes'])
+        db.session.add(video)       # temporarily adding this video to the database
+        db.session.commit()         # it's permanently put in the database
+        return video, 201
+```
+
+### ```test.py```
+```python
+...
+data = [
+    {"likes": 9999999999999, "name": "Girls' Generation - Gee", "views": 10000000000000},
+    {"likes": 1000, "name": "How to make RESTful API", "views": 3000},
+    {"likes": 10, "name": "Amber", "views": 70000}
+]
+
+for i in range(len(data)):
+    response = requests.put(BASE + "video/" + str(i), data[i])
+    print(response.json())
+
+input()
+response = requests.get(BASE + "video/2")
+print(response.json())
+```
+### Output
+```terminal
+{'id': 0, 'name': "Girls' Generation - Gee", 'views': 10000000000000, 'likes': 9999999999999}
+{'id': 1, 'name': 'How to make RESTful API', 'views': 3000, 'likes': 1000}
+{'id': 2, 'name': 'Amber', 'views': 70000, 'likes': 10}
+<Enter>
+{'id': 2, 'name': 'Amber', 'views': 70000, 'likes': 10}
+```
+## Validation Checking
+
+We have validation checking in both of ```put()``` and ```get()```
+
+### ```test.py```
+```python
+...
+data = [
+    {"likes": 9999999999999, "name": "Girls' Generation - Gee", "views": 10000000000000},
+    {"likes": 1000, "name": "How to make RESTful API", "views": 3000},
+    {"likes": 10, "name": "Amber", "views": 70000}
+]
+
+for i in range(len(data)):
+    response = requests.put(BASE + "video/" + str(i), data[i])
+    print(response.json())
+
+input()
+response = requests.get(BASE + "video/6")
+print(response.json())
+```
+
+### Output
+> What happens when we are about to create videos that already exist
+
+> What happens when we want to get the video info of an non-existing video
+```terminal
+{'message': 'Video id has been taken...'}
+{'message': 'Video id has been taken...'}
+{'message': 'Video id has been taken...'}
+<Enter>
+{'message': 'Could not find video with that id...'}
+```
 
 ---
 ##

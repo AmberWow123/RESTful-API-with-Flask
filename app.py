@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_restful import Api, Resource, reqparse, abort
+from flask_restful import Api, Resource, reqparse, abort, fields, marshal_with
 # above two models are the main thing we are going to use
 from flask_sqlalchemy import SQLAlchemy
 
@@ -32,25 +32,49 @@ video_put_args.add_argument(
 video_put_args.add_argument(
     "likes", type=int, help="Likes is required", required=True)
 
-
-videos = {}
+# we are making this dictionary here
+# it will define the fields from the VideoModel above
+resource_fields = {
+    'id': fields.Integer,
+    'name': fields.String,
+    'views': fields.Integer,
+    'likes': fields.Integer
+}
 
 
 class Video(Resource):
+    # it means that when the class method return
+    # take the return value and serialize it using 'resource_fields'
+    # so it assumes we have 'id', 'name', 'views' and 'likes' in the instance
+    # then, serialize it into json format that can be returned
+    @marshal_with(resource_fields)
     def get(self, video_id):
-        result = VideoModel.query.get(id=video_id)
+        result = VideoModel.query.filter_by(id=video_id).first()
+        # to filter all of the videos with the video_id we have
+        # then we return the first response (or first entry in that filter)
+
+        if not result:
+            abort(404, message="Could not find video with that id...")
+
         return result
 
+    @marshal_with(resource_fields)
     # create a video in this put
     def put(self, video_id):
-        # make sure that we don't create a video that already exists
         args = video_put_args.parse_args()
-        videos[video_id] = args
-        return videos[video_id], 201
-        # the status code 201 stands for 'created'
+        
+        result = VideoModel.query.filter_by(id=video_id).first()
+        if result:  # if exists, then video_id already exists
+            abort(409, message="Video id has been taken...")
+        
+        # access each value in args individually and use them to create a new VideoModel
+        video = VideoModel(id=video_id, name=args['name'], views=args['views'], likes=args['likes'])
+        db.session.add(video)       # temporarily adding this video to the database
+        db.session.commit()         # it's permanently put in the database
+        return video, 201
 
     def delete(self, video_id):
-        del videos[video_id]
+        # del videos[video_id]
         return '', 204
         # 204 as deleted successfully
 
