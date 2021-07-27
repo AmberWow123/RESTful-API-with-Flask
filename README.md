@@ -20,6 +20,14 @@ the ```test.py``` file send a **request**
 python test.py
 ```
 
+## Debug Output
+```python
+import sys
+
+print('This is error output', file=sys.stderr)
+print('This is standard output', file=sys.stdout)
+```
+
 --- 
 ## Handling post/get request
 
@@ -541,4 +549,105 @@ print(response.json())
 ```
 
 ---
-##
+## Handing Update Request
+
+### ```app.py```
+```python
+...
+# make all these be optional such that the user can send us whatever arguments they want
+# and, based on what they send, we will update the video info
+video_update_args = reqparse.RequestParser()
+video_update_args.add_argument("name", type=str, help="Name of the video")
+video_update_args.add_argument("views", type=int, help="Views of the video")
+video_update_args.add_argument("likes", type=int, help="Likes of the video")
+...
+class Video(Resource):
+    ...
+    @marshal_with(resource_fields)
+    def patch(self, video_id):
+    # update the video info
+        # get all the arguments to update the video info
+        args = video_update_args.parse_args()
+
+        # check if the video exists or not
+        result = VideoModel.query.filter_by(id=video_id).first()
+        if not result:
+            abort(404, message="Video doesn't exist, so cannot update it")
+
+        # only update the arguments that passed in
+        # checking if it is not None value
+        if args['name']:
+            result.name = args['name']
+        if args['views']:
+            result.views = args['views']
+        if args['likes']:
+            result.likes = args['likes']
+
+        # we can just commit any changes that we made on the object
+        db.session.commit()
+
+        return result
+    ...
+...
+```
+
+### ```test.py```
+> First, check out the current video info
+
+> Then, check out the video info after updating
+```python
+...
+response = requests.get(BASE + "video/2")
+print(response.json())
+
+response = requests.patch(BASE + "video/2", {"views": 99})
+print(response.json())
+```
+
+### Output
+> The video info is successfully updated now
+```terminal
+{'id': 2, 'name': 'Amber', 'views': 70000, 'likes': 10}
+{'id': 2, 'name': 'Amber', 'views': 99, 'likes': 10}
+```
+
+
+### Update several arguments 
+
+### ```test.py```
+
+```python
+response = requests.get(BASE + "video/2")
+print(response.json())
+
+response = requests.patch(BASE + "video/2", {"views": 99, "name": "Go to bed"})
+print(response.json())
+```
+
+### Output
+> For anything info passed in, that will be the new info to be updated 
+```terminal
+{'id': 2, 'name': 'Amber', 'views': 99, 'likes': 10}
+{'id': 2, 'name': 'Go to bed', 'views': 99, 'likes': 10}
+```
+
+### Update nothing
+
+### ```test.py```
+```python
+response = requests.get(BASE + "video/2")
+print(response.json())
+
+response = requests.patch(BASE + "video/2", {})
+print(response.json())
+```
+
+### Output
+> If nothing is passed in for updating, then the video info will stay the same
+```terminal
+{'id': 2, 'name': 'Go to bed', 'views': 99, 'likes': 10}
+{'id': 2, 'name': 'Go to bed', 'views': 99, 'likes': 10}
+```
+
+---
+End
